@@ -567,7 +567,7 @@ footer{padding-block:28px;font-size:.68rem;letter-spacing:.2em;text-transform:up
   const tick = () => $('#parisClock').textContent = new Intl.DateTimeFormat('en-GB', { hour:'2-digit', minute:'2-digit', timeZone:'Europe/Paris' }).format(new Date());
   tick(); setInterval(tick, 15000);
 
-  // contact form (FormSubmit)
+  // contact form (Web3Forms)
   const form = $('#contactForm'), fst = $('#formStatus'), fbtn = $('#formBtn');
   form.addEventListener('submit', async e => {
     e.preventDefault();
@@ -576,9 +576,9 @@ footer{padding-block:28px;font-size:.68rem;letter-spacing:.2em;text-transform:up
     if (d._honey) return;
     fbtn.disabled = true; fbtn.textContent = 'Sending'; fst.textContent = '';
     try {
-      const res = await fetch('https://formsubmit.co/ajax/aakaash10deep@gmail.com', {
+      const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ name: d.name, email: d.email, company: d.company || '-', message: d.message, _subject: 'New message from your website: ' + d.name, _template: 'table' })
+        body: JSON.stringify({ access_key: '08bf6ff4-f9b1-42ba-a65c-7a17e7bc4b2a', name: d.name, email: d.email, company: d.company || '-', message: d.message, subject: 'New message from your website: ' + d.name, from_name: 'prodakash.github.io' })
       });
       const out = await res.json().catch(() => ({}));
       if (!res.ok || String(out.success) === 'false') throw new Error(out.message || 'failed');
