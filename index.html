@@ -220,6 +220,25 @@ nav .wrap{display:flex;align-items:center;justify-content:space-between;height:6
 .clock{margin-top:48px;font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2)}
 .clock b{display:block;font:200 2.6rem var(--display);color:var(--white);letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin-top:6px}
 footer{padding-block:28px;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;color:var(--ink-2);border-top:1px solid var(--hair)}
+/* contact form */
+.contact-grid{grid-template-columns:1fr 1.3fr;align-items:start;gap:clamp(48px,7vw,96px)}
+@media (max-width:760px){.contact-grid{grid-template-columns:1fr}}
+.contact-side{display:grid;gap:40px;align-content:start}
+.contact-side .clock{margin-top:0}
+.form{display:grid;gap:28px;position:relative}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media (max-width:560px){.row2{grid-template-columns:1fr}}
+.field{display:grid;gap:6px;min-width:0}
+.field label{font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-2)}
+.field label em{font-style:normal;opacity:.6;letter-spacing:.1em;text-transform:none}
+.field input,.field textarea{font:300 1.15rem/1.5 var(--body);color:var(--white);background:transparent;border:0;border-bottom:1px solid var(--hair);border-radius:0;padding:10px 0;outline:none;width:100%;resize:vertical;transition:border-color .3s}
+.field input:focus,.field textarea:focus{border-bottom-color:var(--white)}
+.field input::placeholder,.field textarea::placeholder{color:rgba(255,255,255,.28)}
+.field input:-webkit-autofill{-webkit-text-fill-color:#fff;-webkit-box-shadow:0 0 0 100px #000 inset}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+.form-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px}
+.form-status{font-size:.9rem;color:var(--ink-2);min-height:1.4em;max-width:36ch}
+.btn[disabled]{opacity:.5;pointer-events:none}
 .toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140px);background:var(--black);color:var(--white);border:1px solid rgba(255,255,255,.25);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;padding:14px 22px;border-radius:99px;transition:transform .5s var(--ease);z-index:70}
 .toast.show{transform:translate(-50%,0)}
 
@@ -405,14 +424,24 @@ footer{padding-block:28px;font-size:.68rem;letter-spacing:.2em;text-transform:up
     <div class="eyebrow rv">Contact</div>
     <h2 class="rv" style="margin-top:22px">Let's<br><strong>talk.</strong></h2>
     <div class="contact-grid">
-      <div class="rv">
+      <div class="contact-side rv">
         <p>Open to internships in business development, customer success and international business across France and the Schengen area. English-speaking teams preferred.</p>
+        <div class="copies">
+          <button class="copy" data-copy="aakaash10deep@gmail.com">aakaash10deep@gmail.com<span>Copy</span></button>
+          <button class="copy" data-copy="+33745530515">+33 7 45 53 05 15<span>Copy</span></button>
+        </div>
         <div class="clock">Paris, local time<b id="parisClock">--:--</b></div>
       </div>
-      <div class="copies rv">
-        <button class="copy" data-copy="aakaash10deep@gmail.com">aakaash10deep@gmail.com<span>Copy</span></button>
-        <button class="copy" data-copy="+33745530515">+33 7 45 53 05 15<span>Copy</span></button>
-      </div>
+      <form class="form rv" id="contactForm" novalidate>
+        <div class="row2">
+          <div class="field"><label for="cf-name">Name</label><input id="cf-name" name="name" type="text" autocomplete="name" required placeholder="Your name"></div>
+          <div class="field"><label for="cf-email">Email</label><input id="cf-email" name="email" type="email" autocomplete="email" required placeholder="you@company.com"></div>
+        </div>
+        <div class="field"><label for="cf-company">Company <em>(optional)</em></label><input id="cf-company" name="company" type="text" autocomplete="organization" placeholder="Company or school"></div>
+        <div class="field"><label for="cf-message">Message</label><textarea id="cf-message" name="message" rows="5" required placeholder="Tell me about the role or opportunity"></textarea></div>
+        <input class="hp" id="cf-hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div class="form-foot"><span class="form-status" id="formStatus" role="status"></span><button class="btn" type="submit" id="formBtn">Send message</button></div>
+      </form>
     </div>
   </div>
   <div class="wrap" style="margin-top:clamp(80px,10vw,120px)"><footer><span>© 2026 Akashdeep Singh</span><span>Paris, France</span></footer></div>
@@ -537,6 +566,26 @@ footer{padding-block:28px;font-size:.68rem;letter-spacing:.2em;text-transform:up
   // clock
   const tick = () => $('#parisClock').textContent = new Intl.DateTimeFormat('en-GB', { hour:'2-digit', minute:'2-digit', timeZone:'Europe/Paris' }).format(new Date());
   tick(); setInterval(tick, 15000);
+
+  // contact form (FormSubmit)
+  const form = $('#contactForm'), fst = $('#formStatus'), fbtn = $('#formBtn');
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!form.checkValidity()) { fst.textContent = 'Please add your name, a valid email and a message.'; form.reportValidity(); return; }
+    const d = Object.fromEntries(new FormData(form));
+    if (d._honey) return;
+    fbtn.disabled = true; fbtn.textContent = 'Sending'; fst.textContent = '';
+    try {
+      const res = await fetch('https://formsubmit.co/ajax/aakaash10deep@gmail.com', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ name: d.name, email: d.email, company: d.company || '-', message: d.message, _subject: 'New message from your website: ' + d.name, _template: 'table' })
+      });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || String(out.success) === 'false') throw new Error(out.message || 'failed');
+      form.reset(); fst.textContent = 'Thank you. Your message has been sent.'; toast('Message sent');
+    } catch (err) { fst.textContent = 'Could not send right now. Please email aakaash10deep@gmail.com directly.'; }
+    fbtn.disabled = false; fbtn.textContent = 'Send message';
+  });
 
   // copy
   $$('.copy').forEach(b => b.addEventListener('click', async () => {
